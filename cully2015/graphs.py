@@ -4,7 +4,22 @@ import numpy as np
 from bokeh import plotting as bkp
 from bokeh.models import PrintfTickFormatter, LogTickFormatter, NumeralTickFormatter
 
-bkp.output_notebook()
+
+    ## Disable autoscrolling
+
+from IPython.display import display, Javascript
+
+disable_js = """
+IPython.OutputArea.prototype._should_scroll = function(lines) {
+    return false;
+}
+"""
+display(Javascript(disable_js))
+
+
+
+
+bkp.output_notebook(hide_banner=True)
 
 # sns.color_palette("PuBu", 15)
 
@@ -66,7 +81,7 @@ def distance_map(perf_map, res, colors=BLUE_COLORS, title='performance map on th
 EPSILON = 1e-10 # HACK for log scale
 
 def plot_map(perf_map, res, title='performance map', colors=BLUE_COLORS, show=True, scale='default'):
-    ps = perf_map.values()
+    ps = list(perf_map.values())
     p_min, p_max = np.min(ps), np.max(ps)
     if scale == 'log':
         c_min, c_max = -math.log(-p_min+EPSILON), -math.log(-p_max+EPSILON)
@@ -118,7 +133,7 @@ def plot_map(perf_map, res, title='performance map', colors=BLUE_COLORS, show=Tr
 def plot_maps(perf_maps, res, damage, target, colors=BLUE_COLORS, title='', show=True):
     p_min, p_max = float('inf'), float('-inf')
     for p_map, _ in perf_maps:
-        ps = p_map.values()
+        ps = list(p_map.values())
         p_min, p_max = min(p_min, np.min(ps)), max(p_max, np.max(ps))
 
     cbar = colorbar(colors).T
