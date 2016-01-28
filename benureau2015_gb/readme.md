@@ -7,8 +7,9 @@ This notebook proposes a general introduction to *goal babbling*, and how it dif
 ## Directly Online
 
 You can either:
-0. Access [an non-interactive html version](http://fabien.benureau.com/recode/benureau2015_gb/benureau2015_gb.html), with precomputed outputs.
-0. Access [an interactive version online](http://mybinder.org/repo/humm/recode/benureau2015_gb/benureau2015_gb.ipynb), powered by the binder service.
+
+1. Access [an non-interactive html version](http://fabien.benureau.com/recode/benureau2015_gb/benureau2015_gb.html), with precomputed outputs.
+2. Access [an interactive version online](http://mybinder.org/repo/humm/recode/benureau2015_gb/benureau2015_gb.ipynb), powered by the [binder service](http://mybinder.org). This is still experimental; the computations may take a long time. 
 
 ## Installing Locally
 
