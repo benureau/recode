@@ -4,6 +4,6 @@ This repository contains reimplementations of experiments described in published
 
 They are also coded in a way that allow to quickly try and experiment with differents values of the parameters to see how the algorithms react and when do they break.
 
-There is so far only one experiment, but there is more to come:
-
+Here are the list of available reimplementations:
+- [Introduction Goal Babbling](https://github.com/humm/recode/tree/master/benureau2015_gb), *adapted from my Ph.D. Thesis, May 2015*
 - [Robots that can adapt like animals](https://github.com/humm/recode/tree/master/cully2015), *Nature 2015*
