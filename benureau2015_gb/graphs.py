@@ -80,7 +80,7 @@ def disable_grid(fig):
 def spread(s_vectors, title='', fig=None,
            color='#1A60A3', alpha=0.5, radius=0.005,
            width=SIZE, height=SIZE,
-           x_range=[-1.0, 1.0], y_range=[-1.0, 1.0], **kwargs):
+           x_range=(-1.0, 1.0), y_range=(-1.0, 1.0), **kwargs):
 
     if fig is None:
         x_span, y_span = x_range[1]-x_range[0], y_range[1]-y_range[0],
@@ -123,7 +123,7 @@ def goals(s_vectors, fig=None, show=False, title='goal distribution', **kwargs):
 def posture(arm, angles, title='', fig=None,
             color='#333333', alpha=0.5, radius_factor=1.0,
             width=SIZE, height=SIZE,
-            x_range=[-1.0, 1.0], y_range=[-1.0, 1.0], **kwargs):
+            x_range=(-1.0, 1.0), y_range=(-1.0, 1.0), **kwargs):
 
     if fig is None:
         x_span, y_span = x_range[1]-x_range[0], y_range[1]-y_range[0],
