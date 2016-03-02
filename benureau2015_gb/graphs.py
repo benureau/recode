@@ -2,7 +2,8 @@ import math
 
 import numpy as np
 from bokeh import plotting as bkp
-from bokeh.models import PrintfTickFormatter, LogTickFormatter, NumeralTickFormatter
+from bokeh.core.properties import value
+from bokeh.models import FixedTicker
 
 SIZE = 450
 
@@ -34,6 +35,46 @@ def show(grid):
     bkp.show(bkp.gridplot(grid))
 
 
+def tweak_fig(fig):
+    tight_layout(fig)
+    three_ticks(fig)
+    disable_minor_ticks(fig)
+    disable_grid(fig)
+
+def tight_layout(fig):
+    fig.min_border_top    = 35
+    fig.min_border_bottom = 35
+    fig.min_border_right  = 35
+    fig.min_border_left   = 35
+
+def three_ticks(fig):
+    x_min, x_max = fig.x_range.start, fig.x_range.end
+    y_min, y_max = fig.y_range.start, fig.y_range.end
+    if x_min == y_min and x_max == y_max:
+        if x_min <= -10 < 10 <= x_max:
+            x_ticks = [-10, 0, 10]
+            y_ticks = [-10, 0, 10]
+        elif x_min <= -2 < 2 <= x_max:
+            x_ticks = [ -2, 0, 2]
+            y_ticks = [ -2, 0, 2]
+        else:
+            x_ticks = [ -1, 0, 1]
+            y_ticks = [ -1, 0, 1]
+
+        fig.xaxis[0].ticker=FixedTicker(ticks=x_ticks)
+        fig.yaxis[0].ticker=FixedTicker(ticks=y_ticks)
+
+def disable_minor_ticks(fig):
+    fig.axis.major_label_text_font_size = value('8pt')
+    fig.axis.minor_tick_line_color = None
+    fig.axis.major_tick_in = 0
+
+def disable_grid(fig):
+    fig.xgrid.grid_line_color = None
+    fig.ygrid.grid_line_color = None
+
+
+
     ## Display effect distribution ##
 
 def spread(s_vectors, title='', fig=None,
@@ -47,10 +88,11 @@ def spread(s_vectors, title='', fig=None,
                          title_text_font_size='12pt', tools="pan,box_zoom,reset,save",
                          plot_width=width, plot_height=height,
                          **kwargs)
+        tweak_fig(fig)
 
-    xs, ys = [e[0] for e in s_vectors], [e[1] for e in s_vectors]
-    fig.circle([0], [0], radius=1.0, alpha=0.2, color='#AAAAAA')
-    fig.scatter(xs, ys, radius=radius, color=color, alpha=alpha, line_color=None)
+    xs, ys = np.array([e[0] for e in s_vectors]), np.array([e[1] for e in s_vectors])
+    fig.circle([0], [0], radius=1.00, alpha=0.5, fill_color=None, color='#AAAAAA')
+    fig.scatter(xs, ys, radius=radius, fill_color=color, fill_alpha=alpha, line_color=None)
     return fig
 
 def effects(history, fig=None, show=False, **kwargs):
@@ -89,6 +131,7 @@ def posture(arm, angles, title='', fig=None,
                          title_text_font_size='10pt', tools="pan,box_zoom,reset,save",
                          plot_width=width, plot_height=height,
                          **kwargs)
+        tweak_fig(fig)
 
     arm.execute(angles)
     xs = [p[0] for p in arm.posture]
@@ -108,9 +151,11 @@ def posture(arm, angles, title='', fig=None,
 
     return fig
 
-def postures(arm, angles_list, fig=None, show=True, **kwargs):
+def postures(arm, angles_list, fig=None, show=True, disk=False, **kwargs):
     for angles in angles_list:
         fig = posture(arm, angles, fig=fig, **kwargs)
+    if disk and fig is not None:
+        fig.circle([0], [0], radius=1.0, alpha=0.5, fill_color=None, color='#AAAAAA')
     if show:
         bkp.show(fig)
     else:
