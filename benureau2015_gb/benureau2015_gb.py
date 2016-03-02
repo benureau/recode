@@ -1,9 +1,9 @@
 
 # coding: utf-8
 
-# # Recode: Goal Babbling
+# <div align="right"><a href="http://mybinder.org/repo/humm/recode/benureau2015_gb/benureau2015_gb.ipynb">run online</a> | <a href="http://fabien.benureau.com/recode/benureau2015_gb/benureau2015_gb.html">html</a> | <a href="https://github.com/humm/recode/tree/master/benureau2015_gb">github</a> | <a href="https://dx.doi.org/10.6084/m9.figshare.3081352">10.6084/m9.figshare.3081352</a></div>
 
-# <div align="right">[10.6084/m9.figshare.3081352](https://dx.doi.org/10.6084/m9.figshare.3081352)</div>
+# # Recode: Goal Babbling
 
 # This notebook proposes a general introduction to *goal babbling*, and how it differs from *motor babbling*, in the context of robotics. Goal babbling is a way for robots to discover their body and environment on their own. While representations of those could be pre-programmed, there are many reasons not to do so: environments change, robotic bodies are becoming more complex, and flexible limbs, for instance, are difficult and expensive to simulate. By allowing robots to discover the world by themselves, we use the world itself—the best physic engine we know—for robots to conduct their own experiments, and observe and learn the consequence of their actions, much like infants do on their way to becoming adults.
 # 
