@@ -1,13 +1,15 @@
 
 # coding: utf-8
 
-# # Simple Code: Goal Babbling
+# # Recode: Goal Babbling
+
+# <div align="right">[10.6084/m9.figshare.3081352](https://dx.doi.org/10.6084/m9.figshare.3081352)</div>
 
 # This notebook proposes a general introduction to *goal babbling*, and how it differs from *motor babbling*, in the context of robotics. Goal babbling is a way for robots to discover their body and environment on their own. While representations of those could be pre-programmed, there are many reasons not to do so: environments change, robotic bodies are becoming more complex, and flexible limbs, for instance, are difficult and expensive to simulate. By allowing robots to discover the world by themselves, we use the world itself—the best physic engine we know—for robots to conduct their own experiments, and observe and learn the consequence of their actions, much like infants do on their way to becoming adults.
 # 
-# This notebook requires no previous knowledge beyond some elementary trigonometry and a basic grasp of the Python language. The spirit behind this notebook is to show *all the code* of the algorithms in a *simple* manner, without relying on any library beyond [numpy](http://www.numpy.org/) (and even, just a very little of it). Only the plotting routines, using the [bokeh](http://bokeh.pydata.org/) library, have been abstracted away in the [graphs.py](https://github.com/humm/recode/blob/master/benureau2015_gb/graphs.py) file.
+# This notebook requires no previous knowledge beyond some elementary trigonometry and a basic grasp of the Python language. The spirit behind this notebook is to show *all the code* of the algorithms in a simple manner, without relying on any library beyond [numpy](http://www.numpy.org/) (and even, just a very little of it). Only the plotting routines, using the [bokeh](http://bokeh.pydata.org/) library, have been abstracted away in the [graphs.py](https://github.com/humm/recode/blob/master/benureau2015_gb/graphs.py) file.
 # 
-# The algorithms and results exposed here were originally presented in the chapter 0 and chapter 3 of [my Ph.D. thesis](http://fabien.benureau.com/docs/phd_benureau.pdf). They were implemented using the [explorers](https://github.com/humm/explorers) library then. Here, as explained above, we don't rely on the library, and the code has been exposed in its simplest form. It is entirely available under the [Open Science License](http://fabien.benureau.com/openscience.html). You can contact me for questions or remarks at `fabien.benureau@gmail.com`.
+# The algorithms and results exposed here were originally presented in the chapter 0 and chapter 3 of [my Ph.D. thesis](http://fabien.benureau.com/docs/phd_benureau.pdf). They were implemented using the [explorers](https://github.com/humm/explorers) library then. Here, as explained above, we don't rely on the library, and the code has been exposed in its simplest form. It is entirely available under the [Open Science License](http://fabien.benureau.com/openscience.html). A citable version of this notebook is available at [figshare](https://dx.doi.org/10.6084/m9.figshare.3081352). You can contact me for questions or remarks at `fabien.benureau@gmail.com`.
 # 
 # ## A Bit of Context
 # 
@@ -19,6 +21,8 @@
 
 import random
 import numpy as np
+import graphs
+
 SEED = 0
 random.seed(SEED)                                                                              # reproducible results.
 
@@ -66,7 +70,6 @@ arm100 = RoboticArm(dim=100, limit=150)
 
 # In[ ]:
 
-import graphs
 fig = graphs.postures(arm7, [[  0,   0,   0,   0,   0,   0,   0],
                              [ 80, -70,  60, -50,  40, -30,  20],
                              [150, -10, -10, -10, -10, -10, -10]], disk=True)
