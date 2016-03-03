@@ -24,37 +24,37 @@ bkp.output_notebook(hide_banner=True)
 # sns.color_palette("PuBu", 15)
 
 SIZE = 450
-BLUE_COLORS = [[245, 238, 246],
-               [235, 230, 241],
-               [221, 219, 235],
-               [207, 208, 229],
-               [186, 198, 224],
-               [165, 188, 218],
-               [140, 178, 212],
-               [115, 168, 206],
-               [ 83, 156, 199],
-               [ 53, 143, 191],
-               [ 28, 127, 183],
-               [  4, 111, 175],
-               [  4, 100, 157],
-               [  3,  89, 139],
-               [  2,  72, 112]]
+BLUE_COLORS = ((245, 238, 246),
+               (235, 230, 241),
+               (221, 219, 235),
+               (207, 208, 229),
+               (186, 198, 224),
+               (165, 188, 218),
+               (140, 178, 212),
+               (115, 168, 206),
+               ( 83, 156, 199),
+               ( 53, 143, 191),
+               ( 28, 127, 183),
+               (  4, 111, 175),
+               (  4, 100, 157),
+               (  3,  89, 139),
+               (  2,  72, 112))
 
-RED_COLORS = [[255, 245, 181],
-              [254, 236, 159],
-              [254, 226, 138],
-              [254, 216, 117],
-              [254, 197,  96],
-              [253, 177,  75],
-              [253, 158,  67],
-              [252, 140,  59],
-              [252, 108,  50],
-              [251,  76,  41],
-              [238,  50,  34],
-              [226,  25,  28],
-              [207,  12,  33],
-              [187,   0,  38],
-              [156,   0,  38]]
+RED_COLORS = ((255, 245, 181),
+              (254, 236, 159),
+              (254, 226, 138),
+              (254, 216, 117),
+              (254, 197,  96),
+              (253, 177,  75),
+              (253, 158,  67),
+              (252, 140,  59),
+              (252, 108,  50),
+              (251,  76,  41),
+              (238,  50,  34),
+              (226,  25,  28),
+              (207,  12,  33),
+              (187,   0,  38),
+              (156,   0,  38))
 
 def colorbar(colors, inversed=False):
     img = np.zeros((len(colors)-1, 1), dtype=np.uint32)
@@ -101,7 +101,7 @@ def plot_map(perf_map, res, title='performance map', colors=BLUE_COLORS, show=Tr
         view[j, i, 2] = b
         view[j, i, 3] = 255
 
-    plot = bkp.figure(width=SIZE, height=SIZE, x_range=[-0.7, 0.7], y_range=[-0.7, 0.7],
+    plot = bkp.figure(width=SIZE, height=SIZE, x_range=(-0.7, 0.7), y_range=(-0.7, 0.7),
                            title=title, title_text_font_size='12pt',
                            tools = "pan,box_zoom,reset,save")
     plot.image_rgba([img], x=[-0.7],  y=[-0.7], dh=[1.4], dw=[1.4])
@@ -110,13 +110,14 @@ def plot_map(perf_map, res, title='performance map', colors=BLUE_COLORS, show=Tr
 
     if scale == 'log':
         cbar = colorbar(colors, inversed=True)
-        cb_plot = bkp.figure(width=100, height=SIZE, x_range=[0, 1.0], y_axis_type="log", y_range=[-p_max, -p_min])
+        cb_plot = bkp.figure(width=100, height=SIZE, x_range=(0, 1.0), y_axis_type="log", y_range=(-p_max, -p_min))
         cb_plot.image_rgba([cbar], x=[0.0],  y=[-p_max], dw=[1.0], dh=[p_max-p_min])
     else:
         cbar = colorbar(colors)
-        cb_plot = bkp.figure(width=100, height=SIZE, x_range=[0, 1.0], y_range=[p_min, p_max])
+        cb_plot = bkp.figure(width=100, height=SIZE, x_range=(0, 1.0), y_range=(p_min, p_max))
         cb_plot.image_rgba([cbar], x=[0.0],  y=[p_min], dw=[1.0], dh=[p_max-p_min])
 
+    cb_plot.min_border_right = 25
     cb_plot.xgrid.grid_line_color = None
     cb_plot.xaxis.minor_tick_line_color = None
     cb_plot.xaxis.major_tick_line_color = None
@@ -140,7 +141,7 @@ def plot_maps(perf_maps, res, damage, target, colors=BLUE_COLORS, title='', show
     c_min, c_max = p_min, p_max
     if p_max + 0.001 > 0: c_max = 0.0 # HACK
 
-    cb_plot = bkp.figure(width=SIZE, height=100, x_range=[p_min, p_max], y_range=[0, 1],
+    cb_plot = bkp.figure(width=SIZE, height=120, x_range=(p_min, p_max), y_range=(0, 1),
                          title='aquisition function (mu + kappa*sigma^2)',
                          title_text_font_size='12pt',
                          tools="pan,box_zoom,reset,save")
@@ -169,7 +170,7 @@ def plot_maps(perf_maps, res, damage, target, colors=BLUE_COLORS, title='', show
         title = '{}. {:4.1f} cm to target'.format(k+1, -100*perf)
         if k == len(perf_maps) - 1:
             title += ': done!'
-        plot = bkp.figure(width=450, height=450, x_range=[-0.7,0.7], y_range=[-0.7,0.7],
+        plot = bkp.figure(width=450, height=450, x_range=(-0.7,0.7), y_range=(-0.7,0.7),
                           title=title, title_text_font_size='12pt',
                           tools="pan,box_zoom,reset,save")
         plot.image_rgba([img], x=[-0.7],  y=[-0.7],
@@ -202,7 +203,7 @@ def plot_maps(perf_maps, res, damage, target, colors=BLUE_COLORS, title='', show
 
 def arm(angles, title='posture graphs', fig=None,
         color='#666666', alpha=0.5, radius_factor=1.0,
-        x_range=[-1.0, 1.0], y_range=[-1.0, 1.0], **kwargs):
+        x_range=(-1.0, 1.0), y_range=(-1.0, 1.0), **kwargs):
 
     if fig is None:
         fig = bkp.figure(x_range=x_range, y_range=y_range, title=title,
