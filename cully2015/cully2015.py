@@ -110,7 +110,7 @@ def add_mat(ctrl, behavior, perf):
 # (2001), p. 120). For a value $c_i$, whose extremum values are 0 and 1, and given  $r_i$, a random value in [0, 1], the mutation goes:
 # $$c_i' = c_i + \delta_i \textrm{ with } \delta_i = \begin{cases} (2r_i)^{1/(\eta_m+1)} + 1 &\mbox{if } r < 0.5 \\
 # 1 - (2(1-r_i))^{1/(\eta_m+1)} & \mbox{if } r_i \geq 0.5. \end{cases}$$
-# The value of $\eta_m$ is fixed to 10. 
+# The value of $\eta_m$ is fixed to 10.
 
 # In[ ]:
 
@@ -137,7 +137,7 @@ def perturb(c):
     return [mutate(c_i) if random.random() < MUTATION_RATE else c_i for c_i in c]
 
 
-# We can now run the MAP-Elites algorithm. Using this implementation (in 2015), 2 million simulations will take of the order of one minute, depending on your hardware. The original article does 20 million simulations. 
+# We can now run the MAP-Elites algorithm. Using this implementation (in 2015), 2 million simulations will take of the order of one minute, depending on your hardware. The original article does 20 million simulations.
 
 # In[ ]:
 
@@ -159,10 +159,10 @@ graphs.variance_map(perf_map, RES)
 
 # Compared to the results of the article (Extended Data Figure 7.c), this performance map differs in the center because we do not prevent self-collisions; they make high-performing postures impossible in the center.
 
-# ## M-BOA Optimization 
+# ## M-BOA Optimization
 
 # ### A broken arm
-# Fourteen different damage conditions are explored in the article (Extended Data Figure 7.b). Joints can either be stuck at 45°, or have a permanent offset of 45°. For the latter, we assume the offset does not change the range of angles the controller accepts. 
+# Fourteen different damage conditions are explored in the article (Extended Data Figure 7.b). Joints can either be stuck at 45°, or have a permanent offset of 45°. For the latter, we assume the offset does not change the range of angles the controller accepts.
 
 # In[ ]:
 
@@ -217,7 +217,7 @@ def matern(x, y):
 
 # ### M-BOA initialization
 
-# We initialize the performance probability distribution of the broken arm with the performance of the simulations on the new performance metric. 
+# We initialize the performance probability distribution of the broken arm with the performance of the simulations on the new performance metric.
 
 # In[ ]:
 
@@ -229,7 +229,7 @@ for coo in perf_map.keys():
     mu       = performance2(behavior)                                       ## Initialize the mean prior from the map.
     sigma2   = matern(behavior, behavior)           ## Initialize the variance prior (in the common case k(x, x) = 1).
     P_f[coo] = (mu, sigma2)                                                     ## Definition of the Gaussian Process.
-    perf_simu[coo] = mu                                                         
+    perf_simu[coo] = mu
 
 
 # In[ ]:
@@ -325,6 +325,6 @@ graphs.distance_map(perf_broken, RES, title='minimum distance to target: {:5.1f}
 
 # The complete code on this page runs under one minute on most hardware. This allows to quickly modify the code to see how the algorithm reacts. Any capitalized variable can be modified. Different damage conditions, different damage angles can be tried.
 # 
-# For any comment or question, contact me at fabien.benureau@gmail.com.  
+# For any comment or question, contact me at fabien.benureau@gmail.com.
 
 #  

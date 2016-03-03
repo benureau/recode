@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 from bokeh import plotting as bkp
-from bokeh.models import PrintfTickFormatter, LogTickFormatter, NumeralTickFormatter
+from bokeh.models import PrintfTickFormatter
 
 
     ## Disable autoscrolling
@@ -154,7 +154,7 @@ def plot_maps(perf_maps, res, damage, target, colors=BLUE_COLORS, title='', show
 
     plots = [[cb_plot], []]
     for k, (p_map_k, data_k) in enumerate(perf_maps):
-        ctrl, behavior, perf = data_k
+        ctrl, _, perf = data_k
 
         img = np.zeros((res, res), dtype=np.uint32)
         view = img.view(dtype=np.uint8).reshape(img.shape + (4,))
@@ -178,7 +178,7 @@ def plot_maps(perf_maps, res, damage, target, colors=BLUE_COLORS, title='', show
 
         # next behavior
         if k < len(perf_maps) - 1:
-            p_map_k1, data_k1 = perf_maps[k+1]
+            _, data_k1 = perf_maps[k+1]
             _, behavior_k1, _ = data_k1
             plot.circle([behavior_k1[0]], [behavior_k1[1]], radius=0.01,
                         fill_color='#FFFFFF', fill_alpha=0.75, line_color='#000000')
