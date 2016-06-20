@@ -40,6 +40,7 @@ def tweak_fig(fig):
     three_ticks(fig)
     disable_minor_ticks(fig)
     disable_grid(fig)
+    fig.logo = None
 
 def tight_layout(fig):
     fig.min_border_top    = 35
@@ -83,7 +84,6 @@ def spread(s_vectors, title='', fig=None,
            x_range=(-1.0, 1.0), y_range=(-1.0, 1.0), **kwargs):
 
     if fig is None:
-        x_span, y_span = x_range[1]-x_range[0], y_range[1]-y_range[0],
         fig = bkp.figure(x_range=x_range, y_range=y_range, title=title,
                          title_text_font_size='12pt', tools="pan,box_zoom,reset,save",
                          plot_width=width, plot_height=height,
@@ -126,7 +126,6 @@ def posture(arm, angles, title='', fig=None,
             x_range=(-1.0, 1.0), y_range=(-1.0, 1.0), **kwargs):
 
     if fig is None:
-        x_span, y_span = x_range[1]-x_range[0], y_range[1]-y_range[0],
         fig = bkp.figure(x_range=x_range, y_range=y_range, title=title,
                          title_text_font_size='10pt', tools="pan,box_zoom,reset,save",
                          plot_width=width, plot_height=height,
