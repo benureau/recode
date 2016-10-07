@@ -5,5 +5,6 @@ This repository contains reimplementations of experiments described in published
 They are also coded in a way that allow to quickly try and experiment with differents values of the parameters to see how the algorithms react and when do they break.
 
 Here are the list of available reimplementations:
-- [Introduction Goal Babbling](https://github.com/humm/recode/tree/master/benureau2015_gb), *adapted from my Ph.D. Thesis, May 2015*
-- [Robots that can adapt like animals](https://github.com/humm/recode/tree/master/cully2015), *Nature 2015*
+- [Introduction to Goal Babbling](https://github.com/benureau/recode/tree/master/benureau2015_gb), *adapted from my Ph.D. Thesis, May 2015*
+- [Extraordinary intelligence and the care of infants](https://github.com/benureau/recode/tree/master/piantadosi2016), *PNAS 2016*
+- [Robots that can adapt like animals](https://github.com/benureau/recode/tree/master/cully2015), *Nature 2015*
