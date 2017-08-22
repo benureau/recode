@@ -56,6 +56,9 @@ RED_COLORS = ((255, 245, 181),
               (187,   0,  38),
               (156,   0,  38))
 
+
+    ## Graphs
+
 def colorbar(colors, inversed=False):
     img = np.zeros((len(colors)-1, 1), dtype=np.uint32)
     view = img.view(dtype=np.uint8).reshape(img.shape + (4,))
@@ -102,11 +105,9 @@ def plot_map(perf_map, res, title='performance map', colors=BLUE_COLORS, show=Tr
         view[j, i, 3] = 255
 
     plot = bkp.figure(width=SIZE, height=SIZE, x_range=(-0.7, 0.7), y_range=(-0.7, 0.7),
-                           title=title, title_text_font_size='12pt',
-                           tools = "pan,box_zoom,reset,save")
+                           title=title, tools = "pan,box_zoom,reset,save")
+    plot.title.text_font_size = '12pt'
     plot.image_rgba([img], x=[-0.7],  y=[-0.7], dh=[1.4], dw=[1.4])
-
-
 
     if scale == 'log':
         cbar = colorbar(colors, inversed=True)
@@ -143,8 +144,8 @@ def plot_maps(perf_maps, res, damage, target, colors=BLUE_COLORS, title='', show
 
     cb_plot = bkp.figure(width=SIZE, height=120, x_range=(p_min, p_max), y_range=(0, 1),
                          title='aquisition function (mu + kappa*sigma^2)',
-                         title_text_font_size='12pt',
                          tools="pan,box_zoom,reset,save")
+    cb_plot.title.text_font_size = '12pt'
     cb_plot.image_rgba([cbar], x=[p_min],  y=[0.0], dh=[1.0], dw=[p_max-p_min])
     cb_plot.ygrid.grid_line_color = None
     cb_plot.yaxis.minor_tick_line_color = None
@@ -171,8 +172,8 @@ def plot_maps(perf_maps, res, damage, target, colors=BLUE_COLORS, title='', show
         if k == len(perf_maps) - 1:
             title += ': done!'
         plot = bkp.figure(width=450, height=450, x_range=(-0.7,0.7), y_range=(-0.7,0.7),
-                          title=title, title_text_font_size='12pt',
-                          tools="pan,box_zoom,reset,save")
+                          title=title, tools="pan,box_zoom,reset,save")
+        plot.title.text_font_size = '12pt'
         plot.image_rgba([img], x=[-0.7],  y=[-0.7],
                               dh=[1.4], dw=[1.4])
 
@@ -206,8 +207,9 @@ def arm(angles, title='posture graphs', fig=None,
         x_range=(-1.0, 1.0), y_range=(-1.0, 1.0), **kwargs):
 
     if fig is None:
-        fig = bkp.figure(x_range=x_range, y_range=y_range, title=title,
-                              title_text_font_size='6pt', **kwargs)
+        fig = bkp.figure(x_range=x_range, y_range=y_range, title=title, **kwargs)
+        fig.title.text_font_size = '6pt'
+
 
     xs, ys, sum_a, length = [0], [0], 0, 0.62/len(angles)
 

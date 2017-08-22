@@ -1,26 +1,31 @@
 
 # coding: utf-8
 
-# <div align="right"><a href="http://mybinder.org/repo/humm/recode/cully2015/cully2015.ipynb">run online</a> | <a href="http://fabien.benureau.com/recode/cully2015/cully2015.html">html</a> | <a href="https://github.com/humm/recode/tree/master/cully2015">github</a></div>
+# <div align="right"><a href="https://beta.mybinder.org/v2/gh/benureau/recode/master?filepath=cully2015/cully2015.ipynb">run online</a> | <a href="http://fabien.benureau.com/recode/cully2015/cully2015.html">html</a> | <a href="https://github.com/humm/recode/tree/master/cully2015">github</a> | <a href="https://dx.doi.org/10.6084/m9.figshare.5334187">10.6084/m9.figshare.5334187</a></div>
 
 # # Recode: Robots that can adapt like animals
 
-# We recode the arm experiment of the article "Robot that can adapt like animals" ([DOI](http://dx.doi.org/10.1038/nature14422)) by Antoine Cully, Jeff Clune, Danesh Tarapore and Jean-Baptiste Mouret. The article is available [on the Nature website](http://www.nature.com/nature/journal/v521/n7553/full/nature14422.html), and a preprint [is available here](http://www.isir.upmc.fr/files/2015ACLI3468.pdf). The authors have made the [C++ code used for the experiments](http://pages.isir.upmc.fr/~mouret/code/ite_source_code.tar.gz) in the article available, but it was not necessary to consult it to code this Python implementation. The [supplementary information](http://www.nature.com/nature/journal/v521/n7553/extref/nature14422-s1.pdf) document, however, was instrumental to it. This code is available on the [recode github repository](https://github.com/humm/recode), and is published under the [OpenScience License](http://fabien.benureau.com/openscience.html).
+# We recode the arm experiment of the article "Robot that can adapt like animals" ([10.1038/nature14422](http://dx.doi.org/10.1038/nature14422)) by Antoine Cully, Jeff Clune, Danesh Tarapore and Jean-Baptiste Mouret. The article is available [on the Nature website](http://www.nature.com/nature/journal/v521/n7553/full/nature14422.html), and a preprint [is available here](http://www.isir.upmc.fr/files/2015ACLI3468.pdf). The authors have made the [C++ code used for the experiments](http://pages.isir.upmc.fr/~mouret/code/ite_source_code.tar.gz) in the article available, but it was not necessary to consult it to code this Python implementation. The [supplementary information](http://www.nature.com/nature/journal/v521/n7553/extref/nature14422-s1.pdf) document, however, was instrumental to it. This code is available on the [recode github repository](https://github.com/humm/recode), and is published under the [OpenScience License](http://fabien.benureau.com/openscience.html).
 # 
-# We won't attempt to summarize or re-explain the aims behind the experiments; we assume the reader is familiar with the article. Moreover, we only implement the arm experiment here, not the hexapod one. The main differences between this code and the one presented in the article are:
+# The article introduces a new method for robots to adapt their behavior when facing hardware failure, such as a motor malfunctioning. The method is remarquable because it does not need to diagnose the problem, features a significantly faster adaptation than previous techniques, and relies on the experience gained from a long babbling phase (many different motions are tested) on the intact robot. 
+# 
+# We won't attempt to summarize or re-explain futher the aims behind the experiments; we assume the reader is familiar with the article. Moreover, we only implement the arm experiment here, not the hexapod one. The main differences between this code and the one presented in the article are:
 # 0. We employ a kinematic, planar simulation for the robotic arm, in place of both the paper's simulation and the real robot.
 # 0. We do not filter self-collisions of the arm.
 # 0. We do restrict the working area of the arm to the camera field of view.
 # 
-# The code is divided in two parts: one implementing the MAP-Elites algorithm and another implementing the M-BOA optimization algorithm. The code depends on the [numpy](http://www.numpy.org/), and the [bokeh]() library for the figures. The comments from the paper's pseudocode (Supplementary Figure 1) have been inserted into the code when appropriate. They are prefixed with a double "`##`" sign.
+# The code is divided in two parts: one implementing the MAP-Elites algorithm and another implementing the M-BOA optimization algorithm. The code depends on the [numpy](http://www.numpy.org/), and the [bokeh](http://bokeh.pydata.org) library for the figures. The comments from the paper's pseudocode (Supplementary Figure 1) have been inserted into the code when appropriate. They are prefixed with a double "`##`" sign.
 # 
-# The code is optimized for comprehension, not efficiency. Obvious optimization can be made, but they would reduce clarity.
+# The code is optimized for comprehension, not efficiency. Obvious optimization can be made, but they would reduce clarity. A citable version of this notebook is available at [figshare](https://dx.doi.org/10.6084/m9.figshare.5334187). You can contact me for questions or remarks at `fabien.benureau@gmail.com`.
 
 # In[ ]:
 
+
 import random, math
 import numpy as np
-random.seed(0) # same results every time.
+import graphs
+
+random.seed(0) # reproducible results
 
 
 # ## MAP-Elites
@@ -30,6 +35,7 @@ random.seed(0) # same results every time.
 # The arm has 8 joints, each with a range of $\pm \pi/2$, and a length of 62 cm. The `arm2d()` function computes the position of the end effector (in meters) given a set of angles, expressed as normalized values between 0 and 1. All the angles values manipulated outside of this function are between 0 and 1.
 
 # In[ ]:
+
 
 ARM_DIM = 8
 
@@ -54,9 +60,10 @@ def arm2d(angles):
 
 # In[ ]:
 
+
 def performance(angles):
     """Performance based on the variance of the angles"""
-    m = sum(a for a in angles)/len(angles)
+    m = sum(angles)/len(angles)
     return -sum((a - m)**2 for a in angles)/len(angles)
 
 
@@ -68,6 +75,7 @@ def performance(angles):
 
 # In[ ]:
 
+
 ctrl_map = {}
 behv_map = {}
 perf_map = {}
@@ -78,32 +86,33 @@ all_coos = [] # keeping track of all the non-empty cells to quickly choose a ran
 
 # In[ ]:
 
+
 def map_elites(I=200000, B=400):
     """Populate the performance map"""
     for i in range(I):
         if i < B:
-            c = [random.random() for _ in range(ARM_DIM)]     ## the first 400 controllers are generated randomly.
-        else:                                                 ## the next controllers are generated using the map.
+            c = [random.random() for _ in range(ARM_DIM)]         ## the first 400 controllers are generated randomly.
+        else:                                                     ## the next controllers are generated using the map.
             rand_coo = random.choice(all_coos)
-            c_prime = ctrl_map[rand_coo]                             ## Randomly select a controller c in the map.
-            c = perturb(c_prime)                                          ## Create a randomly modified copy of c.
-        behavior = arm2d(c)                       ## Simulate the controller and record its behavioral descriptor.
-        p = performance(c)                                                              ## Record its performance.
-        add_mat(c, behavior, p)                                                      # Update the performance map.
+            c_prime = ctrl_map[rand_coo]                                 ## Randomly select a controller c in the map.
+            c = perturb(c_prime)                                              ## Create a randomly modified copy of c.
+        behavior = arm2d(c)                           ## Simulate the controller and record its behavioral descriptor.
+        p = performance(c)                                                                  ## Record its performance.
+        add_mat(c, behavior, p)                                                          # Update the performance map.
 
 RES = 200 # number of row and columns in the behavioral grid
 
 def add_mat(ctrl, behavior, perf):
-    """Update the perf map if necessary"""
+    """Update the performance map if necessary"""
     x, y = behavior
-    coo = (int((x+0.7)/0.7*RES/2), int((y+0.7)/0.7*RES/2))      # coo is the discretized coordinate of a behavior.
+    coo = (int((x+0.7)/0.7*RES/2), int((y+0.7)/0.7*RES/2))          # coo is the discretized coordinate of a behavior.
     perf_old = perf_map.get(coo, float('-inf'))
-    if perf_old < perf:          ## If the cell is empty or if perf is better than the current stored performance.
+    if perf_old < perf:              ## If the cell is empty or if perf is better than the current stored performance.
         if not coo in ctrl_map:
             all_coos.append(coo)
-        ctrl_map[coo] = ctrl                           ## Associate the controller with its behavioral descriptor.
-        perf_map[coo] = perf              ## Store the performance of c′ in the behavior-performance map according
-        behv_map[coo] = behavior                                                  ## to its behavioral descriptor.
+        ctrl_map[coo] = ctrl                               ## Associate the controller with its behavioral descriptor.
+        perf_map[coo] = perf                  ## Store the performance of c′ in the behavior-performance map according
+        behv_map[coo] = behavior                                                      ## to its behavioral descriptor.
 
 
 # So far, what is missing is the `perturb()` function (line 9). The random modification of an existing controller is done using a polynomial mutation operator (see *Multi-Objective Optimization Using Evolutionary Algorithms* by K. Deb
@@ -113,6 +122,7 @@ def add_mat(ctrl, behavior, perf):
 # The value of $\eta_m$ is fixed to 10.
 
 # In[ ]:
+
 
 ETA_M = 10.0
 
@@ -130,6 +140,7 @@ def mutate(c_i):
 
 # In[ ]:
 
+
 MUTATION_RATE = 0.125
 
 def perturb(c):
@@ -140,6 +151,7 @@ def perturb(c):
 # We can now run the MAP-Elites algorithm. Using this implementation (in 2015), 2 million simulations will take of the order of one minute, depending on your hardware. The original article does 20 million simulations.
 
 # In[ ]:
+
 
 I = 2000000 # number of simulation
 B = 400     # bootstrapping
@@ -153,6 +165,7 @@ map_elites(I=I, B=B)
 
 # In[ ]:
 
+
 import graphs
 graphs.variance_map(perf_map, RES)
 
@@ -165,6 +178,7 @@ graphs.variance_map(perf_map, RES)
 # Fourteen different damage conditions are explored in the article (Extended Data Figure 7.b). Joints can either be stuck at 45°, or have a permanent offset of 45°. For the latter, we assume the offset does not change the range of angles the controller accepts.
 
 # In[ ]:
+
 
 DMG_COND = 3 # change this for different damage condition
 
@@ -189,6 +203,7 @@ def arm2d_broken(angles):
 
 # In[ ]:
 
+
 TARGET = 0.0, 0.62 # in m. Change this for different targets.
 
 def performance2(behavior):
@@ -202,6 +217,7 @@ def performance2(behavior):
 # $$\textrm{matern}(\mathbf{x}, \mathbf{y}) = \left(1 + \frac{\sqrt{5}{\lVert\mathbf{x}-\mathbf{y}\rVert}}{\rho} + \frac{5{\lVert\mathbf{x}-\mathbf{y}\rVert}^2}{3\rho^2}\right)\textrm{exp}\left(-\frac{\sqrt{5}{\lVert\mathbf{x}-\mathbf{y}\rVert}}{\rho}\right)$$
 
 # In[ ]:
+
 
 RHO = 0.1 # the higher the value, the greater the portion of the performance map will be affected.
           # see section 1.6 of the supplementary information for explanation about this value.
@@ -221,6 +237,7 @@ def matern(x, y):
 
 # In[ ]:
 
+
 P_f = {} # performance probability distribution
 perf_simu = {} # performance of the intact arm on the distance performance function
 
@@ -234,7 +251,7 @@ for coo in perf_map.keys():
 
 # In[ ]:
 
-import graphs
+
 graphs.distance_map(perf_simu, RES)
 print('color scale range: [{:.3g}, {:.3g}]'.format(min(perf_simu.values()), max(perf_simu.values())))
 
@@ -245,12 +262,13 @@ print('color scale range: [{:.3g}, {:.3g}]'.format(min(perf_simu.values()), max(
 
 # In[ ]:
 
+
 SIGMA2_NOISE = 0.03 # see section 1.6 of the supplementary information for explanation about these values.
 KAPPA        = 0.3
 
 tried_coo  = [] # the cells of the map whose controller has been executed on the broken robot.
-tried_behv = [] # the behaviors ...
-tried_perf = [] # the performances ...
+tried_behv = [] # and corresponding the behaviors
+tried_perf = [] # and corresponding the performances
 
 def stopping_criterion():
     return len(tried_perf) > 0 and max(tried_perf) > -0.05
@@ -274,21 +292,21 @@ def update_gaussian_process():
 
     for coo in P_f.keys():
         behavior = behv_map[coo]
-        k = np.array([matern(behavior, xi_i) for xi_i in tried_behv])          ## Compute the behavior vs. observation
-                                                                                               ## correlation  vector.
-        mu = perf_simu[coo] + np.dot(k.T, np.dot(K_inv, P_diff))                                   ## Update the mean.
-        sigma2 = matern(behavior, behavior) - np.dot(np.dot(k.T, K_inv), k)                    ## Update the variance.
-        P_f[coo] = (mu, sigma2)                                                        ## Update the Gaussian Process.
+        k = np.array([matern(behavior, xi_i) for xi_i in tried_behv])          ## Compute the behavior vs. observation.
+                                                                                                ## correlation  vector.
+        mu = perf_simu[coo] + np.dot(k.T, np.dot(K_inv, P_diff))                                    ## Update the mean.
+        sigma2 = matern(behavior, behavior) - np.dot(np.dot(k.T, K_inv), k)                     ## Update the variance.
+        P_f[coo] = (mu, sigma2)                                                         ## Update the Gaussian Process.
 
 def adaptation_step():
-    coo_t, ctrl_t = select_test()                                ## Select next test (argmax of acquisition function).
-    perf_t = performance2(arm2d_broken(ctrl_t))                           ## Evaluation of ctrl_t on the broken robot.
+    coo_t, ctrl_t = select_test()                                 ## Select next test (argmax of acquisition function).
+    perf_t = performance2(arm2d_broken(ctrl_t))                            ## Evaluation of ctrl_t on the broken robot.
 
     tried_coo.append(coo_t)
     tried_behv.append(behv_map[coo_t])
     tried_perf.append(perf_t)
 
-    update_gaussian_process()                                                          ## Update the Gaussian Process.
+    update_gaussian_process()                                                           ## Update the Gaussian Process.
     return coo_t
 
 
@@ -308,6 +326,7 @@ while len(tried_behv) < 20 and not stopping_criterion():                        
 
 # In[ ]:
 
+
 import graphs
 graphs.plot_maps(perf_maps, RES, damages[DMG_COND], TARGET)
 
@@ -315,6 +334,7 @@ graphs.plot_maps(perf_maps, RES, damages[DMG_COND], TARGET)
 # In order to compare the result with the ground truth, we can compute the entire performance map of the broken arm.
 
 # In[ ]:
+
 
 perf_broken = {coo: performance2(arm2d_broken(c)) for coo, c in ctrl_map.items()}
 p_min = max(perf_broken.values())
@@ -324,7 +344,5 @@ graphs.distance_map(perf_broken, RES, title='minimum distance to target: {:5.1f}
 # ## Experiment Babbling
 
 # The complete code on this page runs under one minute on most hardware. This allows to quickly modify the code to see how the algorithm reacts. Any capitalized variable can be modified. Different damage conditions, different damage angles can be tried.
-# 
-# For any comment or question, contact me at fabien.benureau@gmail.com.
 
 #  
