@@ -1,6 +1,6 @@
-bokeh >= 0.11.0
+bokeh >= 0.12.6
 numpy
 jupyter
 
-git+https://github.com/humm/scicfg.git#egg=scicfg
-git+https://github.com/humm/learners.git#egg=learners
+git+https://github.com/benureau/scicfg.git#egg=scicfg
+git+https://github.com/benureau/learners.git#egg=learners

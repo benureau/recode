@@ -1,6 +1,8 @@
 *.DS_Store
 *.html
 .ipynb_checkpoints/
+*_output.ipynb
+*.tar.xz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

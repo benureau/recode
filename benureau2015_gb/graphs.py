@@ -24,6 +24,8 @@ display(Javascript(disable_js))
 # load bokeh for jupyter
 bkp.output_notebook(hide_banner=True)
 
+
+
 #
 def show(grid):
     """Display graphs, accepts a list of list of figures.
@@ -34,13 +36,28 @@ def show(grid):
     """
     bkp.show(bkp.gridplot(grid))
 
+def figure(*args, **kwargs):
+    x_ticks = kwargs.pop('x_ticks', None)
+    y_ticks = kwargs.pop('y_ticks', None)
+    fig = plotting.figure(*args, **kwargs)
+    tweak_fig(fig, x_ticks=x_ticks, y_ticks=y_ticks)
+    return fig
 
-def tweak_fig(fig):
+def tweak_fig(fig, x_ticks=None, y_ticks=None, **kwargs):
     tight_layout(fig)
-    three_ticks(fig)
     disable_minor_ticks(fig)
     disable_grid(fig)
-    fig.logo = None
+    fig.toolbar.logo = None
+    fig.outline_line_color = None
+
+    three_ticks(fig)
+    adjustements(fig, x_ticks=x_ticks, y_ticks=y_ticks)
+
+def adjustements(fig, x_ticks=None, y_ticks=None):
+    if x_ticks is not None:
+        fig.xaxis[0].ticker = FixedTicker(ticks=x_ticks)
+    if y_ticks is not None:
+        fig.yaxis[0].ticker = FixedTicker(ticks=y_ticks)
 
 def tight_layout(fig):
     fig.min_border_top    = 35
@@ -85,9 +102,10 @@ def spread(s_vectors, title='', fig=None,
 
     if fig is None:
         fig = bkp.figure(x_range=x_range, y_range=y_range, title=title,
-                         title_text_font_size='12pt', tools="pan,box_zoom,reset,save",
+                         tools="pan,box_zoom,reset,save",
                          plot_width=width, plot_height=height,
                          **kwargs)
+        fig.title.text_font_size = '12pt'
         tweak_fig(fig)
 
     xs, ys = np.array([e[0] for e in s_vectors]), np.array([e[1] for e in s_vectors])
@@ -127,9 +145,10 @@ def posture(arm, angles, title='', fig=None,
 
     if fig is None:
         fig = bkp.figure(x_range=x_range, y_range=y_range, title=title,
-                         title_text_font_size='10pt', tools="pan,box_zoom,reset,save",
+                         tools="pan,box_zoom,reset,save",
                          plot_width=width, plot_height=height,
                          **kwargs)
+        fig.title.text_font_size = '10pt'
         tweak_fig(fig)
 
     arm.execute(angles)

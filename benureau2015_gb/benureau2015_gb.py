@@ -1,15 +1,15 @@
 
 # coding: utf-8
 
-# <div align="right"><a href="http://mybinder.org/repo/humm/recode/benureau2015_gb/benureau2015_gb.ipynb">run online</a> | <a href="http://fabien.benureau.com/recode/benureau2015_gb/benureau2015_gb.html">html</a> | <a href="https://github.com/humm/recode/tree/master/benureau2015_gb">github</a> | <a href="https://dx.doi.org/10.6084/m9.figshare.3081352">10.6084/m9.figshare.3081352</a></div>
+# <div align="right"><a href="http://mybinder.org/repo/benureau/recode/benureau2015_gb/benureau2015_gb.ipynb">run online</a> | <a href="http://fabien.benureau.com/recode/benureau2015_gb/benureau2015_gb.html">html</a> | <a href="https://github.com/benureau/recode/tree/master/benureau2015_gb">github</a> | <a href="https://dx.doi.org/10.6084/m9.figshare.3081352">10.6084/m9.figshare.3081352</a></div>
 
 # # Recode: Goal Babbling
 
 # This notebook proposes a general introduction to *goal babbling*, and how it differs from *motor babbling*, in the context of robotics. Goal babbling is a way for robots to discover their body and environment on their own. While representations of those could be pre-programmed, there are many reasons not to do so: environments change, robotic bodies are becoming more complex, and flexible limbs, for instance, are difficult and expensive to simulate. By allowing robots to discover the world by themselves, we use the world itself—the best physic engine we know—for robots to conduct their own experiments, and observe and learn the consequence of their actions, much like infants do on their way to becoming adults.
 # 
-# This notebook requires no previous knowledge beyond some elementary trigonometry and a basic grasp of the Python language. The spirit behind this notebook is to show *all the code* of the algorithms in a simple manner, without relying on any library beyond [numpy](http://www.numpy.org/) (and even, just a very little of it). Only the plotting routines, using the [bokeh](http://bokeh.pydata.org/) library, have been abstracted away in the [graphs.py](https://github.com/humm/recode/blob/master/benureau2015_gb/graphs.py) file.
+# This notebook requires no previous knowledge beyond some elementary trigonometry and a basic grasp of the Python language. The spirit behind this notebook is to show *all the code* of the algorithms in a simple manner, without relying on any library beyond [numpy](http://www.numpy.org/) (and even, just a very little of it). Only the plotting routines, using the [bokeh](http://bokeh.pydata.org/) library, have been abstracted away in the [graphs.py](https://github.com/benureau/recode/blob/master/benureau2015_gb/graphs.py) file.
 # 
-# The algorithms and results exposed here were originally presented in the chapter 0 and chapter 3 of [my Ph.D. thesis](http://fabien.benureau.com/docs/phd_benureau.pdf). They were implemented using the [explorers](https://github.com/humm/explorers) library then. Here, as explained above, we don't rely on the library, and the code has been exposed in its simplest form. It is entirely available under the [Open Science License](http://fabien.benureau.com/openscience.html). A citable version of this notebook is available at [figshare](https://dx.doi.org/10.6084/m9.figshare.3081352). You can contact me for questions or remarks at `fabien.benureau@gmail.com`.
+# The algorithms and results exposed here were originally presented in the chapter 0 and chapter 3 of [my Ph.D. thesis](http://fabien.benureau.com/docs/phd_benureau.pdf). They were implemented using the [explorers](https://github.com/benureau/explorers) library then. Here, as explained above, we don't rely on the library, and the code has been exposed in its simplest form. It is entirely available under the [Open Science License](http://fabien.benureau.com/openscience.html). A citable version of this notebook is available at [figshare](https://dx.doi.org/10.6084/m9.figshare.3081352). You can contact me for questions or remarks at `fabien.benureau@gmail.com`.
 # 
 # ## A Bit of Context
 # 
@@ -18,6 +18,7 @@
 # The idea of goal babbling was proposed by [Oudeyer and Kaplan (2007)](#References) (p. 8). Computation implementations were then proposed by [Baranes and Oudeyer (2010)](#References); [Rolf et al. (2011)](#References) and [Jamone et al. (2011)](#References). Formal frameworks were described by [Baranes and Oudeyer (2013)](#References) and [Moulin-Frier and Oudeyer (2013)](#References); the work we present here can be understood as an implementation of SAGG-Random. 
 
 # In[ ]:
+
 
 import random
 import numpy as np
@@ -32,6 +33,7 @@ random.seed(SEED)                                                               
 # We consider four different robotic arms, with 2, 7, 20, and 100 joints respectively. All arms measure one meter in length, and all the segments between the joints of the same arm are of equal length. The 7-joint arm, therefore, has segments of 1/7th of a meter, as shown in the figure below. Each joint can move between -150° and +150°. The arm receives a *motor commands* composed of 2, 7, 20 or 100 angle values, and returns an *effect*, the position of the tip of the arm after positioning each joint at the required angle, as a cartesian coordinate $x, y$.
 
 # In[ ]:
+
 
 class RoboticArm(object):
     """A simple robotic arm.
@@ -60,6 +62,7 @@ class RoboticArm(object):
 
 # In[ ]:
 
+
 arm2   = RoboticArm(dim=2,   limit=150)   # you can create new arms here, or modify the parameters of an existing one.
 arm7   = RoboticArm(dim=7,   limit=150)   # for instance, the `limit` parameter can have important consequences.
 arm20  = RoboticArm(dim=20,  limit=150)
@@ -69,6 +72,7 @@ arm100 = RoboticArm(dim=100, limit=150)
 # This is what the 7-joint arm looks like in a few handpicked postures. The grey circle represents the approximate limits of the reachable space, i.e. the space the tip of the arm can reach. [[1]](#Footnotes)
 
 # In[ ]:
+
 
 fig = graphs.postures(arm7, [[  0,   0,   0,   0,   0,   0,   0],
                              [ 80, -70,  60, -50,  40, -30,  20],
@@ -85,6 +89,7 @@ fig = graphs.postures(arm7, [[  0,   0,   0,   0,   0,   0,   0],
 
 # In[ ]:
 
+
 N = 5000                                                                                       # the execution budget.
 
 
@@ -94,12 +99,14 @@ N = 5000                                                                        
 
 # In[ ]:
 
+
 def motor_babbling(arm):
     """Return a random (and legal) motor command."""
     return [random.uniform(-arm.limit, arm.limit) for _ in range(arm.dim)]    
 
 
 # In[ ]:
+
 
 def explore_rmb(arm, n):
     """Explore the arm using random motor babbling (RMB) during n steps."""
@@ -117,6 +124,7 @@ def explore_rmb(arm, n):
 
 # In[ ]:
 
+
 figures = []
 
 for arm in [arm2, arm7, arm20, arm100]:
@@ -131,7 +139,7 @@ graphs.show([[figures[0], figures[1]],                                          
 
 # Each blue dot is the position reached by the tip of the arm during the execution of a motor command.
 # 
-# The random motor babbling strategy does rather well on the 2-joint arm. But as the number of joints increases, the distribution of the effects covers less and less of the approximate reachable area represented by the gray disk. Even after numerous samples of the 7, 20 and 100-joint arm, we don't have a good empirical estimation of the reachable space.
+# The random motor babbling strategy does rather well on the 2-joint arm. But as the number of joints increases, the distribution of the effects covers less and less of the approximate reachable area represented by the grey disk. Even after numerous samples of the 7, 20 and 100-joint arms, we don't have a good empirical estimation of the reachable space.
 
 # ## Goal Babbling
 
@@ -153,10 +161,12 @@ graphs.show([[figures[0], figures[1]],                                          
 
 # In[ ]:
 
+
 D = 0.05                         # with a range of ±150°, creates a perturbation of ±15° (5% of 300° in each direction).
 
 
 # In[ ]:
+
 
 def dist(a, b):
     """Return the Euclidean distance between a and b"""
@@ -185,9 +195,10 @@ def inverse(arm, goal, history):
 
 # #### Optional: Fast Nearest-Neighbors
 
-# Now, the nearest neighbor implementation we have is fine, but it is too slow for some of the experiments we will do here. We replace it by a fast implementation from the [learners](https://github.com/humm/learners) library. If you want to keep the slow but simple implementation, skip the next three code cells.
+# Now, the nearest neighbor implementation we have is fine, but it is too slow for some of the experiments we will do here. We replace it by a fast implementation from the [learners](https://github.com/benureau/learners) library. If you want to keep the slow but simple implementation, skip the next three code cells.
 
 # In[ ]:
+
 
 try: # if learners is not present, the change is not made.
     import learners
@@ -214,6 +225,7 @@ except ImportError:
 
 # In[ ]:
 
+
 history_test = []
 for i in range(1000):                                                  # comparing the results over 1000 random query.
     m_command = [random.random() for _ in range(7)]
@@ -230,6 +242,7 @@ for i in range(1000):                                                  # compari
 
 # In[ ]:
 
+
 nearest_neighbor = nearest_neighbor_fast
 
 
@@ -238,6 +251,7 @@ nearest_neighbor = nearest_neighbor_fast
 # Once we have the inverse model, the remaining question is how to choose goals. There are many ways to cleverly select goals, and this is mostly explored in the context of *intrinsic motivations* (see [Oudeyer and Kaplan (2007)](#References) for instance). Here, we choose the simplest option: random choice. For each sample, we choose as a goal a random point in the square $[-1, 1]\times[-1,1]$.
 
 # In[ ]:
+
 
 def goal_babbling(arm, history):
     """Goal babbling strategy"""
@@ -248,6 +262,7 @@ def goal_babbling(arm, history):
 # One detail is that the inverse model needs a non-empty history, because it works by creating perturbation of existing motor commands. To solve this problem we begin by doing 10 steps of random motor babbling, and then switch to random goal babbling for the remaining 4990 steps of our 5000-step exploration.
 
 # In[ ]:
+
 
 def explore_rgb(arm, n):
     """Explore the arm using random goal babbling (RGB) during n steps."""
@@ -269,6 +284,7 @@ def explore_rgb(arm, n):
 
 # In[ ]:
 
+
 figures, histories_gb = [], []
 
 for arm in [arm2, arm7, arm20, arm100]:
@@ -284,7 +300,7 @@ graphs.show([[figures[0], figures[1]],
 
 # Compared with the figures produced by the motor babbling strategy, the exploration of the reachable space is significantly better when using random goal babbling. Now that we have made this observation, we need to address two things:
 # 1. Why?
-# 2. Why do the 20-joint and 100-joint still don't explore their reachable fully with goal babbling?
+# 2. Why do the 20-joint and 100-joint still don't explore their reachable space fully with goal babbling?
 
 # ## Effect Distribution and Sensorimotor Redundancy
 
@@ -297,6 +313,7 @@ graphs.show([[figures[0], figures[1]],
 # We can demonstrate this with an example. In the code below, we take two motor commands (`m_a` and `m_b`), and look at the effects produced when the same 1000 random perturbations are applied to both. The effects stemming from the first motor command, `m_a`, are spread over a larger area than the effects stemming from the second. 
 
 # In[ ]:
+
 
 m_a = np.array([20, 20, 20, 20, 20, 20, 20])
 m_b = np.array([50, 50, 50, 50, 50, 50, 50])
@@ -326,11 +343,13 @@ graphs.show([[fig_a, fig_b]])
 
 # In[ ]:
 
+
 history_rmb_50k = explore_rmb(arm2, 50000)                                        # random motor babbling exploration.
 history_rgb_50k = explore_rgb(arm2, 50000)                                         # random goal babbling exploration.
 
 
 # In[ ]:
+
 
 rmb_fig = graphs.effects(history_rmb_50k, alpha=0.25,
                          title='2-joint arm, random motor babbling, 50000 steps.')
@@ -344,6 +363,7 @@ graphs.show([[rmb_fig, rgb_fig]])
 # In those areas, only one solution exists to reach a position. In the rest of the reachable space, two solutions exist: one solution with a positive angle in the second joint, and one with a negative one. We can visualize them by separating the two types of solutions:
 
 # In[ ]:
+
 
 # separating effects with postures with a positive and negative second joint.
 pos_history = [h for h in history_rmb_50k if h[0][1] > 0]                                 # h[0] is the motor command.
@@ -377,6 +397,7 @@ graphs.show([[pos_fig, neg_fig]])
 
 # In[ ]:
 
+
 def leftest_posture(history):
     """Return the posture producing the effect with minimum x"""
     left_m_command, left_effect = history[0]
@@ -408,6 +429,7 @@ fig = graphs.postures(arm20, [leftest_posture(histories_gb[2])],
 
 # In[ ]:
 
+
 def goal_babbling_area(arm, history, area):
     """Goal babbling strategy, with a specific distribution of goals"""
     goal = [random.uniform(area[0][0], area[0][1]),
@@ -435,6 +457,7 @@ def explore_rgb_area(arm, n, area=([-1, 1], [-1 ,1])):
 
 # In[ ]:
 
+
 figures = []
 
 for area in [([-0.5, 0.5], [-0.5, 0.5]),
@@ -457,6 +480,7 @@ graphs.show(figures)
 # Since the distribution of goal matters, we need to show that we can devise algorithms that do not rely on spoon-fed goal areas. To do that, we have to compute the area where the goals are randomly drawn during the exploration. We choose an algorithm that draws goals into an area slightly bigger than the current axis-aligned bounding box of the observed effects:
 
 # In[ ]:
+
 
 def update_goal_area(history, extrema):
     """Update the goal area to be 1.4 times bigger than the current observations"""
@@ -501,6 +525,7 @@ def explore_rgb_adaptative(arm, n):
 
 # In[ ]:
 
+
 random.seed(SEED)
 history, goals = explore_rgb_adaptative(arm20, 5000)
 fig_e = graphs.effects(history, title='effect distribution')
@@ -516,7 +541,7 @@ graphs.show([[fig_g, fig_e]])
 
 # ## Footnotes
 
-# 1. The (0, -1) point is not reachable by the arm, due to the angle constraints: that would require every joints to be at 180 degrees. The unreachable area inside the unit circle decreases with the number of joints; only in the 2-joint arm the area is significant. Additionally, in the 2-joint arm case, the area centered around the base of the arm is not reachable either, for the same reasons.
+# 1. The (0, -1) point is not reachable by the arm, due to the angle constraints: that would require every joint to be at 180 degrees. The unreachable area inside the unit circle decreases with the number of joints; only in the 2-joint arm the area is significant. Additionally, in the 2-joint arm case, the area centered around the base of the arm is not reachable either, for the same reasons.
 # 2. We could add the orientation to the redundancy criterion. In that context, an arm is redundant only if it can produce the same position *and* orientation of the tip with different postures. Including the orientation criterion is important in most practical applications. Under that criterion, the 2-joint arm is not redundant.
 # 3. Some areas near the inner and outer edges of the goal babbling distribution do display higher concentration of effects. This is an effect of our inverse model. For a precise explanation, see chapter 0 (page 38 and Figure 6) of [my Ph.D. thesis](http://fabien.benureau.com/docs/phd_benureau.pdf). 
 
