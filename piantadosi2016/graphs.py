@@ -34,9 +34,9 @@ bkp.output_notebook(hide_banner=True)
 
     ## Routines for adjusting figures
 
-def tweak_fig(fig, grid=False, tree_ticks_enable=False):
+def tweak_fig(fig, grid=False, three_ticks_enable=False):
     tight_layout(fig)
-    if tree_ticks_enable:
+    if three_ticks_enable:
         three_ticks(fig)
     disable_minor_ticks(fig)
     if not grid:
@@ -76,7 +76,7 @@ def curve(xs, ys, ys_dash, title='Child growth curve', y_range=[-0.5, 9], **kwar
     fig = bkp.figure(x_range=[-0.5, 25.5], y_range=y_range,
                      title=title, tools="",
                      plot_width=320, plot_height=250, **kwargs)
-    tweak_fig(fig, tree_ticks_enable=False, grid=False)
+    tweak_fig(fig, three_ticks_enable=False, grid=False)
     fig.title.text_font_size = '12pt'
     fig.title.align = 'center'
 
@@ -113,6 +113,7 @@ def fig1(xs, g, P_sb, P_sc, I, R=8.4/2):
 
 
     fig = bkp.gridplot([[fig1a, fig1b, fig1c]])
+    #fig.logo = None
     # fig.toolbar.location = None
 
     handle = bkp.show(fig, notebook_handle=True)
@@ -142,22 +143,22 @@ palette_20 = ["#%02x%02x%02x" % rgb for rgb in palette_20]
 def fig2a(D, x_max=30, y_max=10, palette=palette_20,
           title='P(survive to adulthood)', show=True,
           plot_width=500, plot_height=400, tools=''):
-    fig = bkp.figure(x_range=(0, x_max), y_range=(0, y_max), webgl=False,
+    fig = bkp.figure(x_range=(0, x_max), y_range=(0, y_max),
                      plot_width=plot_width, plot_height=plot_height,
                      tools=tools, title=title)
     fig.title.text_font_size = '12pt'
     fig.title.align = 'center'
-    tweak_fig(fig, tree_ticks_enable=False, grid=False)
+    tweak_fig(fig, three_ticks_enable=False, grid=False)
 
     cmap = LinearColorMapper(high=1.0, low=0.0, palette=palette)
     Dmat = fig.image(image=[D], x=0, y=0, dw=x_max, dh=y_max, color_mapper=cmap)
     fig.xaxis.axis_label = "Birth age (month)"
     fig.yaxis.axis_label = "Brain size (radius, cm)"
 
-    color_bar = bkm.ColorBar(color_mapper=cmap, label_standoff=12, location=(0,0),
-                             border_line_color=None, bar_line_color='black', major_tick_line_color='black')
-
-    fig.add_layout(color_bar, 'right')
+    # color_bar = bkm.ColorBar(color_mapper=cmap, label_standoff=12, location=(0,0),
+    #                          border_line_color=None, bar_line_color='black', major_tick_line_color='black')
+    #
+    # fig.add_layout(color_bar, 'right')
 
     if show:
         handle = bkp.show(fig, notebook_handle=True)
@@ -205,10 +206,10 @@ def fig2b_aux(traces, D, x_max=30, y_max=10, axes=('T', 'R'),  line_width=3, rad
                                   plot_width=900, plot_height=720, title='Population dynamics',
                                   tools='pan,wheel_zoom,reset,save')
     else:
-        fig = bkp.figure(x_range=(0, x_max), y_range=(0, y_max), webgl=False,
+        fig = bkp.figure(x_range=(0, x_max), y_range=(0, y_max),
                          plot_width=660, plot_height=600,
                          tools='pan,wheel_zoom,reset,save', title='Intelligence/Brain radius relationship')
-        tweak_fig(fig, tree_ticks_enable=False, grid=False)
+        tweak_fig(fig, three_ticks_enable=False, grid=False)
 
     fig.xaxis.axis_label = ["Brain size (radius, cm)", "Birth age (month)", "Intelligence"][x_idx]
     fig.yaxis.axis_label = ["Brain size (radius, cm)", "Birth age (month)", "Intelligence"][y_idx]
@@ -232,12 +233,16 @@ def fig2b_aux(traces, D, x_max=30, y_max=10, axes=('T', 'R'),  line_width=3, rad
             R_end=['{:.2f}'.format(trace[-1][0]) for trace in traces],
             T_end=['{:.2f}'.format(trace[-1][1]) for trace in traces],
             I_end=['{:.2f}'.format(trace[-1][2]) for trace in traces],
+            radius=[radius]*len(traces),
+            color=colors,
+            size=[10]*len(traces),
         )
     )
     if display_start:
-        g_r = fig.circle('x', 'y', source=source, radius=radius, color=colors)
+        # radius=radius, color=colors
+        g_r = fig.circle('x', 'y', color='color', radius='radius', size='size', source=source)
     if display_end:
-        g_r = fig.square('x_end', 'y_end', source=source, size=10, color=colors)
+        g_r = fig.square('x_end', 'y_end', size='size', color='color', source=source)
 
     g_hover = bkm.HoverTool(renderers=[g_r],
                             tooltips=[("R_start", "@R_start"),
