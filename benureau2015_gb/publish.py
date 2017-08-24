@@ -3,6 +3,7 @@
 # A small script to automatize creating the archive
 import sys
 import os
+import time
 import subprocess
 
 
@@ -25,7 +26,9 @@ subprocess.check_call(cmd)
 output_notebook = os.path.join(here, 'benureau2015_gb_output.ipynb')
 cmd = ('jupyter-nbconvert', '--to', 'notebook', '--ExecutePreprocessor.timeout=600',
        '--execute', notebook_filepath, '--output', output_notebook)
+start = time.time()
 subprocess.check_call(cmd)
+print("Execution took {:.2f} seconds.".format(time.time() - start))
 
 # exporting as html
 cmd = ('jupyter-nbconvert', '--to', 'html', output_notebook)
