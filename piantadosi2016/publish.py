@@ -43,6 +43,7 @@ cmd = ('tar', 'cfJ', 'piantadosi2016.tar.xz',
                      'piantadosi2016_output.html',
                      'readme.md',
                      'graphs.py',
+                     'provenance.py',
                      'requirements.txt',
                      'publish.py')
 subprocess.check_call(cmd)
