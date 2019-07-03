@@ -1,6 +1,7 @@
 bokeh >= 0.12.6
 numpy
 jupyter
+reproducible==0.3.0
 
 git+https://github.com/humm/scicfg.git#egg=scicfg
 git+https://github.com/humm/learners.git#egg=learners

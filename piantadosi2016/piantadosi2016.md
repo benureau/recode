@@ -1,5 +1,5 @@
 
-<div align="right"><a href="https://beta.mybinder.org/v2/gh/benureau/recode/master?filepath=piantadosi2016/piantadosi2016.ipynb">run online</a> | <a href="http://fabien.benureau.com/recode/piantadosi2016/piantadosi2016.html">html</a> | <a href="https://github.com/humm/recode/tree/master/piantadosi2016">github</a> | <a href="https://dx.doi.org/10.6084/m9.figshare.3990486">10.6084/m9.figshare.3990486</a></div>
+<div align="right"><a href="https://mybinder.org/v2/gh/benureau/recode/master?filepath=piantadosi2016%2Fpiantadosi2016.ipynb">run online</a> | <a href="http://fabien.benureau.com/recode/piantadosi2016/piantadosi2016.html">html</a> | <a href="https://github.com/humm/recode/tree/master/piantadosi2016">github</a> | <a href="https://dx.doi.org/10.6084/m9.figshare.3990486">10.6084/m9.figshare.3990486</a></div>
 
 # Recode: Extraordinary intelligence and the care of infants
 
