@@ -7,7 +7,7 @@
 
 # We recode the model of the article "Extraordinary intelligence and the care of infants" ([10.1073/pnas.1506752113](https://www.pnas.org/cgi/doi/10.1073/pnas.1506752113)) by [Steve Piantadosi](http://colala.berkeley.edu/people/piantadosi/) and [Celeste Kidd](https://www.kiddlab.com). The pdf is [available here](https://www.celestekidd.com/papers/PiantadosiKidd2016Extraord.pdf). Here, we only succinctly describe the model. You should consult the original article for details and for the rationale behind the model's choices.
 # 
-# The spirit of this notebook is to use simple code that is easy to understand and modify. This notebook requires no specific knowledge beyond a basic grasp of the Python language. We show *all the code* of the model, without relying on any library beyond [numpy](https://www.numpy.org/). Only the plotting, using the [bokeh](https://bokeh.pydata.org/) library, have been abstracted away in the [graphs.py](https://github.com/humm/recode/blob/master/piantadosi2016/graphs.py) file.
+# The spirit of this notebook is to use simple code that is easy to understand and modify. This notebook requires no specific knowledge beyond a basic grasp of the Python language. We show *all the code* of the model, without relying on any library beyond [numpy](https://www.numpy.org/). Only the plotting, using the [bokeh](https://bokeh.pydata.org/) library, have been abstracted away in the [graphs.py](https://github.com/humm/recode/blob/master/piantadosi2016/graphs.py) file. We employ the [reproducible](https://github.com/oist-cnru/reproducible) library to keep track of the computational environment and foster reproducibility.
 # 
 # A citable version of this notebook is available at [figshare](https://dx.doi.org/10.6084/m9.figshare.3990486). You can contact me for questions or remarks at fabien@benureau.com.
 
@@ -15,20 +15,20 @@
 
 
 import numpy as np
-import reproducible
 import graphs
 
 np.random.seed(0)                                                                               # repeatable results.
 
 
+# The [reproducible](https://github.com/oist-cnru/reproducible) library fosters reproducibility. It collects information about the OS, Python, CPU and the git repository if present, so it can be displayed in the last cell of this notebook.
+
 # In[ ]:
 
 
-context = reproducible.Context()
-context.add_repo(path='.', allow_dirty=True, diff=True)
-
+import reproducible
+context = reproducible.Context()                          # the Context instance collects data about the environment.
 try:
-    context.add_repo(path='.', allow_dirty=True, diff=True)
+    context.add_repo(path='.', allow_dirty=True, diff=True)             # collect the hash of the current git commit.
 except reproducible.RepositoryNotFound:
     pass
 
