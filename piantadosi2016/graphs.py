@@ -130,15 +130,15 @@ def update_fig1(datas, g, P_sb, P_sc, r):
 
     ## Figure 2A
 
-palette_20 = ['#d52b22', '#db2c23', '#e52e24', '#d62b22',
-              '#ce2a21', '#ce3021', '#df4b23', '#d15b21',
-              '#dc7423', '#e78d25', '#efa626', '#ddab23',
-              '#fdda28', '#f4f127', '#e8f825', '#e6f625',
-              '#e7f625', '#e1ec5d', '#f2fba0', '#f4f7db']
+palette_20 = ['#FF0C12', '#FF1412', '#FF2211', '#FF360E',
+              '#FF4909', '#FF5C00', '#FF6E00', '#FF8300',
+              '#FF9400', '#FFA700', '#FFB900', '#FFCA00',
+              '#FEDE00', '#F6F000', '#EEFF00', '#EEFF00',
+              '#F0FF2B', '#F3FF75', '#F5FFB0', '#FCFFE6', '#FCFFE6']
 
-palette_20 = ([(3*i+198, int(i/19*(3*i+198)), 0) for i in range(20)]
-             +[(255, 255, int(255*i/4)) for i in range(4)])
-palette_20 = ["#%02x%02x%02x" % rgb for rgb in palette_20]
+# palette_20 = ([(3*i+198, int(i/19*(3*i+198)), 0) for i in range(20)]
+#              +[(255, 255, int(255*i/4)) for i in range(4)])
+#palette_20 = ["#%02x%02x%02x" % rgb for rgb in palette_20]
 
 def fig2a(D, x_max=30, y_max=10, palette=palette_20,
           title='P(survive to adulthood)', show=True,
@@ -188,15 +188,17 @@ def line_color():
 
 def fig2b(traces, D, x_max=30, y_max=10):
     return fig2b_aux(traces, D, x_max=30, y_max=10, axes=('T', 'R'),
-                     line_width=3, radius=0.2)
+                     line_width=2, radius=0.2)
 
 def intelligence_radius_fig(traces):
-    return fig2b_aux(traces, None, x_max=11, y_max=10, axes=('I', 'R'),
+    return fig2b_aux(traces, None, x_max=11, y_max=11, axes=('I', 'R'),
                      line_width=1, radius=0.05, display_D=False,
                      display_start=False, display_end=True)
 
-def fig2b_aux(traces, D, x_max=30, y_max=10, axes=('T', 'R'),  line_width=3, radius=0.2,
+def fig2b_aux(traces, D, x_max=30, y_max=10, axes=('T', 'R'),  line_width=2, radius=0.2,
               display_D=True, display_start=True, display_end=False):
+
+    traces = tuple(traces) # ensuring len(traces) works
 
     x_idx = ('R', 'T', 'I').index(axes[0])
     y_idx = ('R', 'T', 'I').index(axes[1])
@@ -211,15 +213,15 @@ def fig2b_aux(traces, D, x_max=30, y_max=10, axes=('T', 'R'),  line_width=3, rad
                          tools='pan,wheel_zoom,reset,save', title='Intelligence/Brain radius relationship')
         tweak_fig(fig, three_ticks_enable=False, grid=False)
 
-    fig.xaxis.axis_label = ["Brain size (radius, cm)", "Birth age (month)", "Intelligence"][x_idx]
-    fig.yaxis.axis_label = ["Brain size (radius, cm)", "Birth age (month)", "Intelligence"][y_idx]
+    fig.xaxis.axis_label = ["R, brain size (radius, cm)", "T, birth age (month)", "I, Intelligence"][x_idx]
+    fig.yaxis.axis_label = ["R, brain size (radius, cm)", "T, birth age (month)", "I, Intelligence"][y_idx]
 
     colors = []
     for trace in traces:
         color = line_color()
         colors.append(color)
-        fig.line([RTI[x_idx] for RTI in trace], [RTI[y_idx] for RTI in trace],
-                 line_width=line_width, line_join='bevel', color=color)
+        fig.line([RTI[x_idx] for RTI in trace[1:]], [RTI[y_idx] for RTI in trace[1:]],
+                 line_width=line_width, line_join='bevel', color=color, alpha=0.7)
 
     source = ColumnDataSource(
         data=dict(
@@ -241,8 +243,15 @@ def fig2b_aux(traces, D, x_max=30, y_max=10, axes=('T', 'R'),  line_width=3, rad
     if display_start:
         # radius=radius, color=colors
         g_r = fig.circle('x', 'y', color='color', radius='radius', size='size', source=source)
+
     if display_end:
-        g_r = fig.square('x_end', 'y_end', size='size', color='color', source=source)
+        g_r = fig.diamond('x_end', 'y_end', size='size', color='color', source=source)
+
+    if not display_D:
+        # 1:1 line
+        fig.line([0, max(x_max, y_max)], [0, max(x_max, y_max)],
+                 color='black', alpha=0.5, line_width=1, line_dash='dashed')
+
 
     g_hover = bkm.HoverTool(renderers=[g_r],
                             tooltips=[("R_start", "@R_start"),

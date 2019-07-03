@@ -4,6 +4,7 @@
 *_output.ipynb
 *.tar.xz
 */original_code/
+new_replications/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
