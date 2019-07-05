@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # <div align="right"><a href="https://beta.mybinder.org/v2/gh/benureau/recode/master?filepath=cully2015/cully2015.ipynb">run online</a> | <a href="http://fabien.benureau.com/recode/cully2015/cully2015.html">html</a> | <a href="https://github.com/humm/recode/tree/master/cully2015">github</a> | <a href="https://dx.doi.org/10.6084/m9.figshare.5334187">10.6084/m9.figshare.5334187</a></div>
@@ -292,27 +292,27 @@ def update_gaussian_process():
 
     for coo in P_f.keys():
         behavior = behv_map[coo]
-        k = np.array([matern(behavior, xi_i) for xi_i in tried_behv])          ## Compute the behavior vs. observation.
-                                                                                                ## correlation  vector.
-        mu = perf_simu[coo] + np.dot(k.T, np.dot(K_inv, P_diff))                                    ## Update the mean.
-        sigma2 = matern(behavior, behavior) - np.dot(np.dot(k.T, K_inv), k)                     ## Update the variance.
-        P_f[coo] = (mu, sigma2)                                                         ## Update the Gaussian Process.
+        k = np.array([matern(behavior, xi_i) for xi_i in tried_behv])         ## Compute the behavior vs. observation.
+                                                                                               ## correlation  vector.
+        mu = perf_simu[coo] + np.dot(k.T, np.dot(K_inv, P_diff))                                   ## Update the mean.
+        sigma2 = matern(behavior, behavior) - np.dot(np.dot(k.T, K_inv), k)                    ## Update the variance.
+        P_f[coo] = (mu, sigma2)                                                        ## Update the Gaussian Process.
 
 def adaptation_step():
-    coo_t, ctrl_t = select_test()                                 ## Select next test (argmax of acquisition function).
-    perf_t = performance2(arm2d_broken(ctrl_t))                            ## Evaluation of ctrl_t on the broken robot.
+    coo_t, ctrl_t = select_test()                                ## Select next test (argmax of acquisition function).
+    perf_t = performance2(arm2d_broken(ctrl_t))                           ## Evaluation of ctrl_t on the broken robot.
 
     tried_coo.append(coo_t)
     tried_behv.append(behv_map[coo_t])
     tried_perf.append(perf_t)
 
-    update_gaussian_process()                                                           ## Update the Gaussian Process.
+    update_gaussian_process()                                                          ## Update the Gaussian Process.
     return coo_t
 
 
 perf_maps = [] # storing maps for graphs
 
-while len(tried_behv) < 20 and not stopping_criterion():                                             ## Iteration loop.
+while len(tried_behv) < 20 and not stopping_criterion():                                            ## Iteration loop.
     coo = adaptation_step()
 
     tryout = ctrl_map[coo], behv_map[coo], tried_perf[-1]
